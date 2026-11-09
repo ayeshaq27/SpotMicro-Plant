@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | 1. Board bring-up (flash, network, SSH, check-in) | ✅ Done | `stage1/evidence/` |
 | 2. Sensor explorer (stereo camera over MIPI, ROS 2 node) | ✅ Done | `stage1/evidence/`, [`docs/camera-setup.md`](docs/camera-setup.md) |
-| 3. First AI task (YOLO object detection) | TODO | TODO |
+| 3. First AI task (YOLO object detection) | ✅ Done | `stage1/evidence/` |
 
 Community check-in: TODO (Discord permalink)
 
@@ -33,7 +33,7 @@ Community check-in: TODO (Discord permalink)
 | TogetheROS (ROS 2 Humble) | Preinstalled with RDKOS |
 | `tros-humble-mipi-cam` | 2.5.2 |
 | RDK Studio (macOS) | Used to flash the image and manage device connections |
-| YOLO model | TODO |
+| YOLO model | YOLOv8n (`yolov8_640x640_nv12.bin`, preinstalled, COCO 80 classes) via `dnn_node_example` |
 
 ---
 
@@ -82,11 +82,31 @@ Full walkthrough, including cable orientation and what each command does: [`docs
 
 ### 5. YOLO object detection
 
-TODO: commands used and output
+```bash
+source /opt/tros/humble/setup.bash
+export CAM_TYPE=mipi
+ros2 launch dnn_node_example dnn_node_example.launch.py dnn_example_config_file:=config/yolov8workconfig.json dnn_example_image_width:=640 dnn_example_image_height:=480
+```
+
+Then open `http://<board-ip>:8000` and click **Web Display**. Detected objects appear with labeled boxes.
+
+- `export CAM_TYPE=mipi` tells the example to use the MIPI camera instead of a USB camera.
+- `dnn_example_config_file` selects the model. `yolov8workconfig.json` points to YOLOv8n compiled for the X5's BPU (AI accelerator).
+- The YOLO example runs **one** camera of the stereo pair, unlike the dual-camera launch in section 4.
 
 ---
 
 ## Troubleshooting
+
+### YOLO: camera fails with `creat_vse_node failed, ret -10`
+
+**Symptom:** The YOLO example loaded the model fine, but `mipi_cam` died with `creat_vse_node(1176) failed, ret -10`, then `capture init failture`. The codec and websocket nodes then reported no image or AI data.
+**Cause (likely):** The VSE (video scaling engine) couldn't produce the requested output sizes from the 1280×1088 sensor. The camera node also produces a 1920×1080 output by default, which is larger than the sensor.
+**Fix:** Request a smaller resolution:
+
+```bash
+dnn_example_image_width:=640 dnn_example_image_height:=480
+```
 
 ### Camera: `capture init failure`
 
