@@ -14,7 +14,7 @@
 | 2. Sensor explorer (stereo camera over MIPI, ROS 2 node) | ✅ Done | `stage1/evidence/`, [`docs/camera-setup.md`](docs/camera-setup.md) |
 | 3. First AI task (YOLO object detection) | ✅ Done | `stage1/evidence/` |
 
-Community check-in: TODO (Discord permalink)
+Community check-in: [`(Discord permalink)`](https://discord.com/channels/1300358874280230994/1562841654505898034/1569480691559694438)
 
 ---
 
